@@ -103,14 +103,15 @@ async def matrix_relay(room_id, message, longname, meshnet_name):
             "meshtastic_meshnet": meshnet_name,
         }
         logger.debug(f"Sending to room {room_id}: {content}")
-        await asyncio.wait_for(
+        response = await asyncio.wait_for(
             matrix_client.room_send(
                 room_id=room_id,
                 message_type="m.room.message",
                 content=content,
             ),
-            timeout=0.5,
+            timeout=1,
         )
+        logger.debug(f"Matrix response: {response}")
         logger.info(f"Sent inbound radio message to matrix room: {room_id}")
 
     except asyncio.TimeoutError:
