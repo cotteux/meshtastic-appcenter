@@ -101,6 +101,8 @@ def on_meshtastic_message(packet, loop=None):
 
         for room in matrix_rooms:
             if room["meshtastic_channel"] == channel:
+                room_id = room["id"]
+                logger.debug(f"Sending to matrix room ({room_id}): {formatted_message}")
                 asyncio.run_coroutine_threadsafe(
                     matrix_relay(
                         room["id"],

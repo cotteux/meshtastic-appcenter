@@ -102,6 +102,7 @@ async def matrix_relay(room_id, message, longname, meshnet_name):
             "meshtastic_longname": longname,
             "meshtastic_meshnet": meshnet_name,
         }
+        logger.debug(f"Sending to room {room_id}: {content}")
         await asyncio.wait_for(
             matrix_client.room_send(
                 room_id=room_id,
