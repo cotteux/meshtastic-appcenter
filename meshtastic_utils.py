@@ -118,6 +118,11 @@ def on_meshtastic_message(packet, loop=None):
         shortname = get_shortname(sender) or sender
         meshnet_name = relay_config["meshtastic"]["meshnet_name"]
 
+        # If the message is from another relay on the same meshnet, ignore it
+        if meshnet_name == relay_config["meshtastic"]["meshnet_name"]:
+            logger.debug(f"Ignoring message from another relay on the same meshnet {meshnet_name}")
+            return
+            
         formatted_message = f"[{longname}/{meshnet_name}]: {text}"
 
         # Plugin functionality
