@@ -48,25 +48,15 @@ begin
   OverwriteConfig := CreateInputOptionPage(wpWelcome,
     'Configure the relay', 'Create new configuration',
     '', False, False);
-  MatrixPage := CreateInputQueryPage(OverwriteConfig.ID, 
-      'Matrix Setup', 'Configure Matrix Settings',
-      'Enter the settings for your Matrix server.');
-  MeshtasticPage := CreateInputQueryPage(MatrixPage.ID, 
+   MeshtasticPage := CreateInputQueryPage(MatrixPage.ID, 
       'Meshtastic Setup', 'Configure Meshtastic Settings',
       'Enter the settings for connecting with your Meshtastic radio.');
-  MatrixMeshtasticPage := CreateInputQueryPage(MeshtasticPage.ID, 
-      'Matrix <> Meshtastic Setup', 'Configure Matrix <> Meshtastic Settings',
-      'Connect a Matrix room with a Meshtastic radio channel.');
-  OptionsPage := CreateInputOptionPage(MatrixMeshtasticPage.ID, 
+   OptionsPage := CreateInputOptionPage(MatrixMeshtasticPage.ID, 
       'Additional Options', 'Provide additional optios',
       'Set logging and broadcast options, you can keep the defaults.', False, False);
   
   OverwriteConfig.Add('Generate configuration (overwrite any current config files)');
   OverwriteConfig.Values[0] := False;
-
-  MatrixPage.Add('Homeserver: (example: https://matrix.org)', False);
-  MatrixPage.Add('Bot User ID (example: @mybotuser:matrix.org)', False);
-  MatrixPage.Add('Access Token (example: syt_bWvzaGjvdD1_PwsXoZgGItImVxBIZbBK_1XZVW8)', False);
 
   TokenInfoLabel := TLabel.Create(WizardForm);
   TokenInfoLabel.Caption := 'For instructions on where to find your access token, visit:';
@@ -85,10 +75,6 @@ begin
   TokenInfoLink.Top := TokenInfoLabel.Top + TokenInfoLabel.Height;
 
 
-  MatrixPage.Edits[0].Hint := 'https://example.matrix.org';
-  MatrixPage.Edits[1].Hint := '@botuser:example.matrix.org';
-  MatrixPage.Edits[2].Hint := 'reaalllllyloooooongsecretttttcodeeeeeeforrrrbot';
-
   MeshtasticPage.Add('Connection Type (network or serial)?', False);
   MeshtasticPage.Add('Serial Port (if serial):', False);
   MeshtasticPage.Add('Hostname/IP (If network):', False);
@@ -98,11 +84,6 @@ begin
   MeshtasticPage.Edits[2].Hint := 'hostname/IP (if network)';
   MeshtasticPage.Edits[3].Hint := 'Name for radio Meshnet';
 
-
-  MatrixMeshtasticPage.Add('Matrix Room ID/Alias (example: #someroom:example.matrix.org)', False);
-  MatrixMeshtasticPage.Add('Meshtastic Channel # (0 is Primary, 1-7 Secondary)', False);
-  MatrixMeshtasticPage.Edits[0].Hint := '!someroomid:example.matrix.org';
-  MatrixMeshtasticPage.Edits[1].Hint := '0-7 (default 0)';
 
   OptionsPage.Add('Detailed logging');
   OptionsPage.Add('Radio broadcasts enabled');
@@ -157,23 +138,7 @@ begin
         log_level := 'info';
     end;
 
-    config := 'matrix:' + #13#10 +
-              '  homeserver: "' + MatrixPage.Values[0] + '"' +  #13#10 +
-              '  bot_user_id: "' + MatrixPage.Values[1] + '"' + #13#10 +
-              '  access_token: "' + MatrixPage.Values[2] + '"' + #13#10 +
-              'matrix_rooms:' + #13#10 +
-              '  - id: "' + MatrixMeshtasticPage.Values[0] + '"' + #13#10 +
-              '    meshtastic_channel: ' + MatrixMeshtasticPage.Values[1] + #13#10 +
-              'meshtastic:' + #13#10 +
-              '  connection_type: "' + connection_type + '"' + #13#10 +
-              '  serial_port: "' + serial_port + '"' + #13#10 +
-              '  host: "' + host + '"' + #13#10 +
-              '  meshnet_name: "' + MeshtasticPage.Values[3] + '"' + #13#10 +
-              '  broadcast_enabled: ' + BoolToStr(OptionsPage.Values[1]) + #13#10 +
-              'logging:' + #13#10 +
-              '  level: "' + log_level + '"' + #13#10 +
-              'plugins:' + #13#10;
-
+    
     if Not SaveStringToFile(sAppDir+'/config.yaml', config, false) then
     begin
         MsgBox('Could not create config file "config.yaml". Close any applications that may have it open and re-run setup', mbInformation, MB_OK);
