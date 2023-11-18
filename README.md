@@ -14,12 +14,6 @@
 
 
 
-### Windows Installer
-
-<img  src="https://user-images.githubusercontent.com/1770544/235249050-8c79107a-50cc-4803-b989-39e58100342d.png"  width="500"/>  
-
-The latest installer is available [here](https://github.com/geoffwhittington/meshtastic-matrix-relay/releases)
-
 ### Apps
 
 Generate a map of your nodes
@@ -36,7 +30,5 @@ Produce high-level details about your mesh
 The relay is compatible with the following operating systems:
 
 - Linux
-- MacOS
-- Windows
 
 Refer to [the development instructions](DEVELOPMENT.md) for details about running the relay on MacOS and Linux.
