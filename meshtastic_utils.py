@@ -9,7 +9,6 @@ from log_utils import get_logger
 from db_utils import get_longname, get_shortname
 from plugin_loader import load_plugins
 
-matrix_rooms: List[dict] = relay_config["matrix_rooms"]
 
 logger = get_logger(name="Meshtastic")
 
@@ -81,10 +80,9 @@ def on_lost_meshtastic_connection(interface):
     connect_meshtastic()
 
 
-# Callback for new messages from Meshtastic
+# Callback for new messages from Meshtastic Select APPS
 def on_meshtastic_message(packet, loop=None):
-    from matrix_utils import matrix_relay
-
+   
     sender = packet["fromId"]
 
     if "text" in packet["decoded"] and packet["decoded"]["text"]:
@@ -101,11 +99,7 @@ def on_meshtastic_message(packet, loop=None):
 
         # Check if the channel is mapped to a Matrix room in the configuration
         channel_mapped = False
-        for room in matrix_rooms:
-            if room["meshtastic_channel"] == channel:
-                channel_mapped = True
-                break
-
+        
         if not channel_mapped:
             logger.debug(f"Skipping message from unmapped channel {channel}")
             return
@@ -143,18 +137,7 @@ def on_meshtastic_message(packet, loop=None):
             f"Relaying Meshtastic message from {longname} to Matrix: {formatted_message}"
         )
 
-        for room in matrix_rooms:
-            if room["meshtastic_channel"] == channel:
-                asyncio.run_coroutine_threadsafe(
-                    matrix_relay(
-                        room["id"],
-                        formatted_message,
-                        longname,
-                        shortname,
-                        meshnet_name,
-                    ),
-                    loop=loop,
-                )
+       
     else:
         portnum = packet["decoded"]["portnum"]
 
