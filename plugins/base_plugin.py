@@ -84,25 +84,6 @@ class BasePlugin(ABC):
 
         return data
 
-    def get_matrix_commands(self):
-        return [self.plugin_name]
-
-    async def send_matrix_message(self, room_id, message, formatted=True):
-        from matrix_utils import connect_matrix
-
-        matrix_client = await connect_matrix()
-
-        return await matrix_client.room_send(
-            room_id=room_id,
-            message_type="m.room.message",
-            content={
-                "msgtype": "m.text",
-                "format": "org.matrix.custom.html" if formatted else None,
-                "body": message,
-                "formatted_body": markdown.markdown(message),
-            },
-        )
-
     def get_mesh_commands(self):
         return []
 
@@ -128,12 +109,6 @@ class BasePlugin(ABC):
     def get_data(self):
         return get_plugin_data(self.plugin_name)
 
-    def matches(self, payload):
-        from matrix_utils import bot_command
-
-        if type(payload) == str:
-            return bot_command(self.plugin_name, payload)
-        return False
 
     @abstractmethod
     async def handle_meshtastic_message(

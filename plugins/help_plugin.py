@@ -2,7 +2,13 @@ import re
 
 from plugins.base_plugin import BasePlugin
 from plugin_loader import load_plugins
-
+from log_utils import get_logger
+from meshtastic_utils import (
+    connect_meshtastic,
+    on_meshtastic_message,
+    on_lost_meshtastic_connection,
+    logger as meshtastic_logger,
+)
 
 class Plugin(BasePlugin):
     plugin_name = "help"
@@ -11,41 +17,36 @@ class Plugin(BasePlugin):
     def description(self):
         return f"List supported relay commands"
 
-    async def handle_meshtastic_message(
-        self, packet, formatted_message, longname, meshnet_name
-    ):
-        return False
-
-    def get_matrix_commands(self):
+    def get_mesh_commands(self):
         return [self.plugin_name]
 
-    def get_mesh_commands(self):
-        return []
-
     async def handle_room_message(self, room, event, full_message):
-        full_message = full_message.strip()
-        if not self.matches(full_message):
-            return False
+        return False
 
-        command = None
-
-        match = re.match(r"^.*: !help\s+(.+)$", full_message)
-        if match:
-            command = match.group(1)
-
+    async def handle_meshtastic_message(self, packet, formatted_message, longname, meshnet_name):
+        if (
+            "decoded" in packet
+            and "portnum" in packet["decoded"]
+            and packet["decoded"]["portnum"] == "TEXT_MESSAGE_APP"
+            and "text" in packet["decoded"]
+        ):
+            message = packet["decoded"]["text"]
+            # message = message.strip()
+            meshtastic_logger.info(f"msg - {message}")
+            if f"!{self.plugin_name}" not in message:
+               meshtastic_logger.info(f"pas bon plugins")
+               return
+        else : return 
+	
+        commands = []
         plugins = load_plugins()
+        meshtastic_logger.info(f"voila - {plugins}")
+        for plugin in plugins:
+            commands.extend(plugin.get_mesh_commands())
+            meshtastic_logger.info(f"v - {commands}")
+        reply = "commandes: "+" , ".join(commands)
+        from meshtastic_utils import connect_meshtastic
 
-        if command:
-            reply = f"No such command: {command}"
-
-            for plugin in plugins:
-                if command in plugin.get_matrix_commands():
-                    reply = f"`!{command}`: {plugin.description}"
-        else:
-            commands = []
-            for plugin in plugins:
-                commands.extend(plugin.get_matrix_commands())
-            reply = "Available commands: " + ", ".join(commands)
-
-        response = await self.send_matrix_message(room.room_id, reply)
+        meshtastic_client = connect_meshtastic()
+        meshtastic_client.sendText(text=reply, destinationId=packet["fromId"])
         return True

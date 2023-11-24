@@ -46,17 +46,27 @@ SNR: {avg_snr:.2f} / {mdn_snr:.2f} (avg / median)
     async def handle_meshtastic_message(
         self, packet, formatted_message, longname, meshnet_name
     ):
-        return False
+        if (
+            "decoded" in packet
+            and "portnum" in packet["decoded"]
+            and packet["decoded"]["portnum"] == "TEXT_MESSAGE_APP"
+            and "text" in packet["decoded"]
+        ):
+            message = packet["decoded"]["text"]
+            message = message.strip()
+            if f"!{self.plugin_name}" not in message:
+                return
+
+            from meshtastic_utils import connect_meshtastic
+
+            meshtastic_client = connect_meshtastic()
+            response = self.generate_response()
+            meshtastic_client.sendText(text=response, destinationId=packet["fromId"])
+            return True
+
 
     async def handle_room_message(self, room, event, full_message):
-        from matrix_utils import connect_matrix
-
         full_message = full_message.strip()
         if not self.matches(full_message):
             return False
-
-        response = await self.send_matrix_message(
-            room.room_id, self.generate_response(), formatted=False
-        )
-
         return True
