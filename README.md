@@ -16,14 +16,9 @@
 
 ### Apps
 
-Generate a map of your nodes
+Talk to you node directly with command like !help, !health,!ping , !weather
 
-<img  src="https://user-images.githubusercontent.com/1770544/235247915-47750b4f-d505-4792-a458-54a5f24c1523.png"  width="500"/>
-
-Produce high-level details about your mesh
-
-<img  src="https://user-images.githubusercontent.com/1770544/235245873-1ddc773b-a4cd-4c67-b0a5-b55a29504b73.png"  width="500"/>
-
+More apps and template coming soon.
 
 ## Supported Platforms
 
