@@ -1,14 +1,3 @@
-matrix:
-  homeserver: "https://example.matrix.org"
-  access_token: "reaalllllyloooooongsecretttttcodeeeeeeforrrrbot" # See: https://t2bot.io/docs/access_tokens/
-  bot_user_id: "@botuser:example.matrix.org"
-
-matrix_rooms: # Needs at least 1 room & channel, but supports all Meshtastic channels
-  - id: "#someroomalias:example.matrix.org" # Matrix room aliases & IDs supported
-    meshtastic_channel: 0
-  - id: "!someroomid:example.matrix.org"
-    meshtastic_channel: 2
-
 meshtastic:
   connection_type: serial # Choose either "network" or "serial"
   serial_port: /dev/ttyUSB0 # Only used when connection is "serial"
@@ -20,9 +9,9 @@ logging:
   level: "info"
 
 plugins: # Optional plugins
-  health:
+  help:
     active: true
-  map:
+  meteo:
     active: true
-  nodes:
+  ping:
     active: true
