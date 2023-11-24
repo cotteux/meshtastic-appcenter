@@ -1,3 +1,4 @@
+
 import asyncio
 import time
 import meshtastic.tcp_interface
@@ -9,7 +10,6 @@ from log_utils import get_logger
 from db_utils import get_longname, get_shortname
 from plugin_loader import load_plugins
 
-matrix_rooms: List[dict] = relay_config["matrix_rooms"]
 
 logger = get_logger(name="Meshtastic")
 
@@ -83,35 +83,33 @@ def on_lost_meshtastic_connection(interface):
 
 # Callback for new messages from Meshtastic
 def on_meshtastic_message(packet, loop=None):
-    from matrix_utils import matrix_relay
-
+    process = 0
     sender = packet["fromId"]
+    receiver = packet["toId"]
+    if sender == "" : 
+        logger.debug(f"- VIDE ------------------")
+        return
 
     if "text" in packet["decoded"] and packet["decoded"]["text"]:
         text = packet["decoded"]["text"]
+        logger.debug(f"- {packet}")
+        logger.debug(f"s: {sender}  d: {receiver}")
 
-        if "channel" in packet:
-            channel = packet["channel"]
+        if not receiver ==  '!fa666c80' :
+            #logger.debug(f"{packet['channel']}")
+            logger.debug(f"-non-")
+            #channel = packet["channel"]
+            process = 0
         else:
-            if packet["decoded"]["portnum"] == "TEXT_MESSAGE_APP":
-                channel = 0
+            if packet["decoded"]["portnum"] == "TEXT_MESSAGE_APP" and not receiver == '^all' :
+               logger.debug(f"-oui-")
+               process = 1
             else:
                 logger.debug(f"Unknown packet")
                 return
 
-        # Check if the channel is mapped to a Matrix room in the configuration
-        channel_mapped = False
-        for room in matrix_rooms:
-            if room["meshtastic_channel"] == channel:
-                channel_mapped = True
-                break
-
-        if not channel_mapped:
-            logger.debug(f"Skipping message from unmapped channel {channel}")
-            return
-
         logger.info(
-            f"Processing inbound radio message from {sender} on channel {channel}"
+            f"Processing inbound radio message from {sender}"
         )
 
         longname = get_longname(sender) or sender
@@ -125,7 +123,7 @@ def on_meshtastic_message(packet, loop=None):
 
         found_matching_plugin = False
         for plugin in plugins:
-            if not found_matching_plugin:
+            if not found_matching_plugin :
                 result = asyncio.run_coroutine_threadsafe(
                     plugin.handle_meshtastic_message(
                         packet, formatted_message, longname, meshnet_name
@@ -133,31 +131,19 @@ def on_meshtastic_message(packet, loop=None):
                     loop=loop,
                 )
                 found_matching_plugin = result.result()
-                if found_matching_plugin:
+                if found_matching_plugin :
                     logger.debug(f"Processed by plugin {plugin.plugin_name}")
 
-        if found_matching_plugin:
+        if found_matching_plugin and process == 1:
             return
 
-        logger.info(
-            f"Relaying Meshtastic message from {longname} to Matrix: {formatted_message}"
-        )
+        #logger.info(
+            #f"Relaying Meshtastic message from {longname} to Matrix: {formatted_message}"
+        #)
 
-        for room in matrix_rooms:
-            if room["meshtastic_channel"] == channel:
-                asyncio.run_coroutine_threadsafe(
-                    matrix_relay(
-                        room["id"],
-                        formatted_message,
-                        longname,
-                        shortname,
-                        meshnet_name,
-                    ),
-                    loop=loop,
-                )
     else:
         portnum = packet["decoded"]["portnum"]
-
+        plugin = ""
         plugins = load_plugins()
         found_matching_plugin = False
         for plugin in plugins:
@@ -168,7 +154,9 @@ def on_meshtastic_message(packet, loop=None):
                     ),
                     loop=loop,
                 )
+                #logger.info(f"result =  {result.result()}"),
                 found_matching_plugin = result.result()
+                #logger.debug(f"pas le droit: {plugin.plugin_name}")
                 if found_matching_plugin:
                     logger.debug(
                         f"Processed {portnum} with plugin {plugin.plugin_name}"

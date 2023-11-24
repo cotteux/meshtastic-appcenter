@@ -6,14 +6,11 @@ sorted_active_plugins = []
 
 
 def load_plugins():
-    from plugins.health_plugin import Plugin as HealthPlugin
-    from plugins.map_plugin import Plugin as MapPlugin
-    from plugins.mesh_relay_plugin import Plugin as MeshRelayPlugin
-    from plugins.ping_plugin import Plugin as PingPlugin
-    from plugins.telemetry_plugin import Plugin as TelemetryPlugin
-    from plugins.weather_plugin import Plugin as WeatherPlugin
     from plugins.help_plugin import Plugin as HelpPlugin
-    from plugins.nodes_plugin import Plugin as NodesPlugin
+    from plugins.health_plugin import Plugin as HealthPlugin
+    from plugins.ping_plugin import Plugin as PingPlugin
+    from plugins.weather_plugin import Plugin as WeatherPlugin
+    from plugins.web_plugin import Plugin as WebPlugin
     from plugins.drop_plugin import Plugin as DropPlugin
     from plugins.debug_plugin import Plugin as DebugPlugin
 
@@ -23,15 +20,12 @@ def load_plugins():
 
     plugins = [
         HealthPlugin(),
-        MapPlugin(),
-        MeshRelayPlugin(),
         PingPlugin(),
-        TelemetryPlugin(),
         WeatherPlugin(),
+        WebPlugin(),
         HelpPlugin(),
-        NodesPlugin(),
         DropPlugin(),
-        DebugPlugin(),
+        DebugPlugin()
     ]
 
     active_plugins = []
