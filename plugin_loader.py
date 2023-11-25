@@ -10,7 +10,6 @@ def load_plugins():
     from plugins.health_plugin import Plugin as HealthPlugin
     from plugins.ping_plugin import Plugin as PingPlugin
     from plugins.weather_plugin import Plugin as WeatherPlugin
-    from plugins.web_plugin import Plugin as WebPlugin
     from plugins.drop_plugin import Plugin as DropPlugin
     from plugins.debug_plugin import Plugin as DebugPlugin
 
@@ -22,7 +21,6 @@ def load_plugins():
         HealthPlugin(),
         PingPlugin(),
         WeatherPlugin(),
-        WebPlugin(),
         HelpPlugin(),
         DropPlugin(),
         DebugPlugin()
